@@ -41,6 +41,7 @@ RUN apt-get update && apt-get upgrade -y \
     pdo_pgsql \
     soap \
     zip \
+    && apt-get install -y git \
     && docker-php-ext-configure gd \
     --with-freetype-dir=/usr/include/ \
     --with-jpeg-dir=/usr/include/ \
@@ -62,6 +63,16 @@ RUN apt-get update && apt-get upgrade -y \
 
 
 RUN /bin/cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && echo 'Asia/Shanghai' >/etc/timezone
+
+RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" && \
+    php composer-setup.php --install-dir /usr/local/bin --filename composer && \
+    mkdir -p /home/composer/.composer && \
+    ln -s /root/.ssh /home/composer/.ssh
+
+ENV COMPOSER_ALLOW_SUPERUSER 1
+ENV COMPOSER_HOME /home/composer/.composer
+
+RUN composer config -g repo.packagist composer https://packagist.phpcomposer.com
 
 
 WORKDIR /data
